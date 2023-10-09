@@ -14,10 +14,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    notification(),
+    home(),
     purchase(),
     stoke(),
-    home(),
+    notification(),
   ];
 
   void _onItemTapped(int index) {
