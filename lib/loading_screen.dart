@@ -28,7 +28,7 @@ class _SplashScreenState extends State<loadingScreen> {
         children: <Widget>[
           // Background Image
           Image.asset(
-            'assets/store.png',
+            'assets/app.png',
             width: 200,
             height: 200,
             fit: BoxFit.fill,

@@ -1,115 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/material/colors.dart';
+import 'package:my_store_app/form.dart';
 class home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
+    return Scaffold(
+      body: Column(
         children: [
-          SectionHeading(headingText: 'Section 1'),
-          GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Number of columns
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(child: BlockWidget("Stoke", Colors.lightGreenAccent)),
+                Expanded(child: BlockWidget("Sold", Colors.blue.shade100,)),
+              ],
             ),
-            itemCount: 2, // Number of blocks
-            shrinkWrap: true, // Ensure that the GridView takes only the required space
-            physics: NeverScrollableScrollPhysics(), // Disable scrolling of the GridView itself
-            itemBuilder: (context, index) {
-              // Return a rounded block widget for each index
-              return RoundedBlock(
-                title: 'Block $index',
-                color: Colors.lightGreenAccent,
-                // Background color of the block
-              );
-            },
           ),
-          SectionHeading(headingText: 'Section 2'),
-          GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Number of columns
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(child: BlockWidget("Expired", Colors.red.shade50)),
+                Expanded(child: BlockWidget("To be Purchased", Colors.orange.shade100)),
+              ],
             ),
-            itemCount: 2, // Number of blocks
-            shrinkWrap: true, // Ensure that the GridView takes only the required space
-            physics: NeverScrollableScrollPhysics(), // Disable scrolling of the GridView itself
-            itemBuilder: (context, index) {
-              // Return a rounded block widget for each index
-              return RoundedBlock(
-                title: 'Block $index',
-                color: Colors.lightBlueAccent,
-                // Background color of the block
-              );
-            },
           ),
+          AddButton(),
         ],
       ),
     );
   }
 }
 
-class SectionHeading extends StatelessWidget {
-  final String headingText;
 
-  SectionHeading({required this.headingText});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(10.0),
-      child: Text(
-        headingText,
-        style: TextStyle(
-          fontSize: 20.0, // Adjust the heading font size
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-class RoundedBlock extends StatelessWidget {
-  final String title;
+class BlockWidget extends StatelessWidget {
+  final String heading;
   final Color color;
 
-  RoundedBlock({required this.title, required this.color});
+  BlockWidget(this.heading, this.color);
 
   @override
   Widget build(BuildContext context) {
-    // Create a rounded block with a title
-    return Container(
-      margin: EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: color, // Background color of the block
-        borderRadius: BorderRadius.circular(16.0),
-        // Rounded border
+    return Card(
+      margin: EdgeInsets.all(16.0),
+      shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20.0),
       ),
-      padding: EdgeInsets.all(10.0), // Adjust padding for size
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Colors.black, // Text color
-              fontSize: 15.0, // Adjust the block font size
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 10.0), // Spacing between title and content
-          // Make the content scrollable if it overflows
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Add your block content here
-                  // You can add any other widgets you want inside the block
-                  // For example, you can add a long text that overflows
-                  // and becomes scrollable inside the block.
-                  Text(
-                    'This is a long text that will overflow and become scrollable inside the block. ' * 10,
-                  ),
-                ],
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              heading,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
+            SizedBox(height: 20),
+            Expanded(
+              child: TableWidget(),
+            ),
+          ],
+        ),
+      ),
+      color: color,
+    );
+  }
+}
+
+class TableWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          DataColumn(label: Text('Header 1')),
+          DataColumn(label: Text('Header 2')),
         ],
+        rows: [
+          DataRow(cells: [
+            DataCell(Text('Item, Price')),
+            DataCell(Text('Item, price')),
+          ]),
+          DataRow(cells: [
+            DataCell(Text('Item , price')),
+            DataCell(Text('Item, price')),
+          ]),
+        ],
+      ),
+    );
+  }
+}
+
+class AddButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) => FormSlideShow(),
+                ),
+              );
+            });
+            // Add your logic to handle the addition of information
+          },
+          child: Icon(Icons.add),
+          backgroundColor: Colors.green,
+        ),
       ),
     );
   }
