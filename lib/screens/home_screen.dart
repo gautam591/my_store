@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'notification.dart'; // Import the Page1 widget
-import 'purchase_history_screen.dart'; // Import the Page2 widget
-import 'stoke_screen.dart'; // Import the Page3 widget
+import 'dart:convert';
+import '../shared_prefs.dart';
+import 'notification.dart';
+import 'purchase_history_screen.dart';
+import 'stoke_screen.dart';
 import 'home.dart';
 import 'package:my_store_app/login_register.dart';
 
@@ -12,6 +14,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  Map<String, dynamic> user = {'uid': 'Loading...'};
+  bool dataFetched = false;
+
+  _HomeScreenState() {
+    setUserData();
+  }
 
   final List<Widget> _pages = [
     home(),
@@ -26,17 +34,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> setUserData() async {
+    String userRaw = await getLocalData('user') as String;
+    setState(() {
+      user = json.decode(userRaw);
+      dataFetched = true; // Set the flag to indicate data has been fetched.
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: Text('Store'),
+        title: const Text('Store Home'),
         actions: <Widget>[
           Builder(
             builder: (BuildContext context) {
               return IconButton(
-                icon: Icon(Icons.menu),
+                icon: const Icon(Icons.menu),
                 onPressed: () {
                   Scaffold.of(context).openEndDrawer();
                 },
@@ -50,21 +66,35 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.green,
               ),
-              child: Text(
-                'Gautam Buddha Cold Store',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
+              child: dataFetched?
+                Text(
+                  user['display_name'],
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ) : const CircularProgressIndicator(),
             ),
             ListTile(
-              title: Text('Logout'),
+              title: const Text('Edit Profile'),
               onTap: () {
-                Future.delayed(Duration(seconds: 4), () {
+                // Navigate to the home page or perform an action
+                Future.delayed(const Duration(seconds: 0), () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => HomeScreen(),
+                    ),
+                  );
+                });
+              },
+            ),
+            ListTile(
+              title: const Text('Logout'),
+              onTap: () {
+                Future.delayed(Duration(seconds: 0), () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (BuildContext context) =>LoginRegisterPage(),
@@ -73,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
             ),
-                    ],
+          ],
         ),
       ),
       body: _pages[_selectedIndex],

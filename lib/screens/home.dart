@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'package:my_store_app/form.dart';
+
 class home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -10,7 +11,7 @@ class home extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Expanded(child: BlockWidget("Stoke", Colors.lightGreenAccent)),
+                Expanded(child: BlockWidget("Stock", Colors.lightGreenAccent)),
                 Expanded(child: BlockWidget("Sold", Colors.blue.shade100,)),
               ],
             ),
@@ -18,7 +19,7 @@ class home extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Expanded(child: BlockWidget("Expired", Colors.red.shade50)),
+                Expanded(child: BlockWidget("Expired", Colors.red.shade100)),
                 Expanded(child: BlockWidget("To be Purchased", Colors.orange.shade100)),
               ],
             ),
