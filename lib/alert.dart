@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
+import 'main.dart';
 
 class Alerts {
-  static BuildContext? _context;
-
-  static void setContext(BuildContext context) {
-    _context = context;
-  }
+  static final BuildContext? _context = MyApp.globalNavKey.currentContext;
 
   static void showGeneral(String message, {int duration = 4}) {
     _showSnackBar(message, duration);

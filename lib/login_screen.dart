@@ -1,14 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'register.dart';
+import 'register_screen.dart';
 import 'request.dart';
-import 'screens/home_screen.dart';
+import 'home_screen.dart';
 import 'alert.dart';
 
 class LoginRegisterPage extends StatefulWidget {
   const LoginRegisterPage({super.key});
 
   @override
-  _LoginRegisterPageState createState() => _LoginRegisterPageState();
+  State<LoginRegisterPage> createState() => _LoginRegisterPageState();
 }
 
 class _LoginRegisterPageState extends State<LoginRegisterPage> {
@@ -18,7 +20,6 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    Alerts.setContext(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login/Register'),
@@ -95,10 +96,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                                 };
                                 Map<String, dynamic> response = await Requests.login(data);
                                 if(response["status"] == true) {
+                                  Map<String, dynamic> user = json.decode(json.encode(response["data"]["user"] as String));
                                   Alerts.showSuccess(response["messages"]["success"]);
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                                    MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
                                   );
                                 }
                                 else{
@@ -108,7 +110,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
-                              minimumSize: Size.fromHeight(40),
+                              minimumSize: const Size.fromHeight(40),
                             ),
                             child: const Text(
                               'Login',

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'alert.dart';
-import 'login_register.dart';
+import 'login_screen.dart';
 import 'request.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -74,6 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your PAN number';
                         }
+                        // if (value )
                         return null; // Return null if the input is valid
                       },
                     ),
@@ -166,7 +167,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           };
                           Map<String, dynamic> response = await Requests.register(data);
                           if(response["status"] == true) {
-                            // print("Response under true: $response");
                             Alerts.showSuccess("Please continue to Login with the store (${panNumberController.text}) you just registered with!");
                             Navigator.push(
                               context,

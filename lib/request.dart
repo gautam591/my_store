@@ -12,6 +12,8 @@ const apiURLS = {
   'login'     : '$host/api/user/login/',
   'logout'    : '$host/api/user/logout/',
   'register'  : '$host/api/user/register/',
+  'addItem'   : '$host/api/user/addItem/',
+  'getItems'  : '$host/api/user/getItems/',
 };
 
 class RequestHelper {
@@ -154,6 +156,64 @@ class Requests {
       if (kDebugMode) {
         print('Request failed with status: ${response.statusCode} '
             '\nResponse Body:\n ${response.body}');
+      }
+    }
+    return jsonResponse;
+  }
+
+  static Future<Map<String, dynamic>> addItem(Map<String, String> data) async{
+    String csrf = await RequestHelper.getCSRFToken();
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Cookie': 'csrftoken=$csrf;',
+      'X-CSRFToken': csrf,
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+    };
+    final response = await RequestHelper.sendPostRequest(apiURLS['addItem']!, headers, data);
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+    if (response.statusCode == 201) {
+      if (jsonResponse["status"] == true) {
+        if (kDebugMode) {
+          print("Item added Successfully: ${jsonResponse["messages"]["success"]}");
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode} '
+            '\nResponse Body:\n ${response.body}');
+      }
+    }
+    return jsonResponse;
+  }
+
+  static Future<Map<String, dynamic>> getItems(String username, {bool? refresh}) async{
+    refresh = refresh ?? false;
+    if (refresh = false) {
+
+    }
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      // 'Cookie': 'csrftoken=$csrf;',
+      // 'X-CSRFToken': csrf,
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      'username': username,
+    };
+
+    final response = await RequestHelper.sendGetRequest(apiURLS['getItems']!, headers);
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      if (jsonResponse["status"] == true) {
+        setLocalData({'items': json.encode(jsonResponse["data"])});
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode} '
+            '\nResponse Body:\n ${response.body}');
+
       }
     }
     return jsonResponse;
