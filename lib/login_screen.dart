@@ -96,7 +96,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                                 };
                                 Map<String, dynamic> response = await Requests.login(data);
                                 if(response["status"] == true) {
-                                  Map<String, dynamic> user = json.decode(json.encode(response["data"]["user"] as String));
+                                  Map<String, dynamic> user = json.decode(json.encode(response["data"]["user"]));
                                   Alerts.showSuccess(response["messages"]["success"]);
                                   Navigator.push(
                                     context,

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:my_store_app/request.dart';
 
 class SummaryTab extends StatefulWidget {
-  Map<String, dynamic> user;
+  final Map<String, dynamic> user;
 
-  SummaryTab({
+  const SummaryTab({
     super.key,
     required this.user,
   });
@@ -15,19 +15,59 @@ class SummaryTab extends StatefulWidget {
 }
 
 class _SummaryTabState extends State<SummaryTab> {
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
   List<DataRow> rowsStock = [];
   List<DataRow> rowsSales = [];
-  List<DataRow> rowsExpired = [];
+  List<DataRow> rowsExpiry = [];
   bool dataFetched = false;
 
   Future<void> getItemsData({bool? refresh}) async {
     refresh = refresh ?? false;
     String itemsRaw = json.encode(await Requests.getItems(widget.user['uid'], refresh: refresh));
+    String itemsSalesRaw = json.encode(await Requests.getSalesItems(widget.user['uid'], refresh: refresh));
+    String itemsExpiryRaw = json.encode(await Requests.getExpiryItems(widget.user['uid'], refresh: refresh));
+
     setState(() {
       Map<String, dynamic> items = json.decode(itemsRaw)['data'];
       rowsStock = [];
       items.forEach((key, value) {
         rowsStock.add(DataRow(
+          cells: [
+            DataCell(Text('${value['name']}')),
+            DataCell(Text('${value['quantity']}')),
+            DataCell(Text('${value['price']}')),
+            DataCell(Text('${value['purchase_date']}')),
+            DataCell(Text('${value['expiry_date']}')),
+            DataCell(Text('${value['description']}'))
+          ],
+        ));
+      });
+
+      Map<String, dynamic> itemsSales = json.decode(itemsSalesRaw)['data'];
+      rowsSales = [];
+      itemsSales.forEach((key, value) {
+        rowsSales.add(DataRow(
+          cells: [
+            DataCell(Text('${value['name']}')),
+            DataCell(Text('${value['quantity']}')),
+            DataCell(Text('${value['price']}')),
+            DataCell(Text('${value['sales_date']}')),
+            DataCell(Text('${value['expiry_date']}')),
+            DataCell(Text('${value['description']}'))
+          ],
+        ));
+      });
+
+      Map<String, dynamic> itemsExpiry = json.decode(itemsExpiryRaw)['data'];
+      rowsExpiry = [];
+      itemsExpiry.forEach((key, value) {
+        rowsExpiry.add(DataRow(
           cells: [
             DataCell(Text('${value['name']}')),
             DataCell(Text('${value['quantity']}')),
@@ -59,7 +99,7 @@ class _SummaryTabState extends State<SummaryTab> {
                 Row(
                   children: [
                     Expanded(child: CardWidget(title: 'Sales', color: Colors.blue.shade100, rows: rowsSales),),
-                    Expanded(child: CardWidget(title: 'To be Expired', color: Colors.red.shade100, rows: rowsExpired),),
+                    Expanded(child: CardWidget(title: 'To be Expired', color: Colors.red.shade100, rows: rowsExpiry),),
                   ],
                 ),
               ],
@@ -116,7 +156,7 @@ class CardWidget extends StatelessWidget {
                     DataColumn(label: Text('Name')),
                     DataColumn(label: Text('Quantity')),
                     DataColumn(label: Text('Price')),
-                    DataColumn(label: Text('Purchase Date')),
+                    DataColumn(label: Text('Date')),
                     DataColumn(label: Text('Expiry Date')),
                     DataColumn(label: Text('Description')),
                   ],

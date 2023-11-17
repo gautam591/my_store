@@ -5,9 +5,9 @@ import '../alert.dart';
 import '../request.dart';
 
 class PurchaseTab extends StatefulWidget {
-  Map<String, dynamic> user;
+  final Map<String, dynamic> user;
 
-  PurchaseTab({
+  const PurchaseTab({
     super.key,
     required this.user,
   });
@@ -45,12 +45,14 @@ class _PurchaseTabState extends State<PurchaseTab> {
     FocusScope.of(context).unfocus();
     _formKeyItemAdd.currentState!.save();
     if(_formKeyItemAdd.currentState!.validate()) {
+      final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final data = {
         'username': '${widget.user['uid']}',
         'name': itemNameController.text,
         'price': itemPriceController.text,
         'quantity': itemQuantityController.text,
         'expiry_date': itemExpiryDateController.text,
+        'purchase_date': dateNow,
         'description': itemDescriptionController.text,
       };
       Map<String, dynamic> response = await Requests.addItem(data);
@@ -63,7 +65,7 @@ class _PurchaseTabState extends State<PurchaseTab> {
               DataCell(Text(itemPriceController.text)),
               DataCell(Text(itemQuantityController.text)),
               DataCell(Text(itemExpiryDateController.text)),
-              DataCell(Text(DateFormat('yyyy-MM-dd').format(DateTime.now()))),
+              DataCell(Text(dateNow)),
               DataCell(Text(itemDescriptionController.text))
             ],
           ));

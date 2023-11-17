@@ -51,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(
-                        labelText: 'Store Name',
+                        labelText: 'Store Name*',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.text,
@@ -66,7 +66,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: panNumberController,
                       decoration: const InputDecoration(
-                        labelText: 'PAN Number',
+                        labelText: 'PAN Number*',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
@@ -82,7 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: emailController,
                       decoration: const InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Email*',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -97,13 +97,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: phoneNumberController,
                       decoration: const InputDecoration(
-                        labelText: 'Phone Number',
+                        labelText: 'Phone Number*',
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
+                        String pattern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
+                        RegExp regExp = RegExp(pattern);
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your Phone number';
+                          return 'Please enter phone number';
+                        }
+                        else if (!regExp.hasMatch(value)) {
+                          return 'Please enter valid mobile number (+9771234567890)';
                         }
                         return null; // Return null if the input is valid
                       },
@@ -112,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: passwordController,
                       decoration: const InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Password*',
                         border: OutlineInputBorder(),
                       ),
                       obscureText: true,
@@ -133,7 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextFormField(
                       controller: confirmPasswordController,
                       decoration: const InputDecoration(
-                        labelText: 'Confirm your password',
+                        labelText: 'Confirm your password*',
                         border: OutlineInputBorder(),
                       ),
                       obscureText: true,

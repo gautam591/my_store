@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'shared_prefs.dart';
 
 // const host = 'http://leonardo674.pythonanywhere.com';
@@ -14,6 +15,10 @@ const apiURLS = {
   'register'  : '$host/api/user/register/',
   'addItem'   : '$host/api/user/addItem/',
   'getItems'  : '$host/api/user/getItems/',
+  'sellItem'  : '$host/api/user/sellItem/',
+  'getSalesItems'  : '$host/api/user/getSalesItems/',
+  'getExpiryItems'  : '$host/api/user/getExpiryItems/',
+  'getNotifications'  : '$host/api/user/getNotifications/',
 };
 
 class RequestHelper {
@@ -141,6 +146,7 @@ class Requests {
       'Accept': '*/*',
       'Connection': 'keep-alive',
     };
+
     final response = await RequestHelper.sendPostRequest(apiURLS['register']!, headers, data);
     Map<String, dynamic> jsonResponse = json.decode(response.body);
     // Map<String, dynamic> jsonResponse = json.decode('{"status": true, "messages": {"success": "User \'testadmin6\' created successfully", "attributes": [{"level": 25, "message": "User \'testadmin6\' created successfully", "extra_tags": "extra tags value"}]}}');
@@ -205,6 +211,130 @@ class Requests {
     final response = await RequestHelper.sendGetRequest(apiURLS['getItems']!, headers);
     Map<String, dynamic> jsonResponse = json.decode(response.body);
 
+    if (response.statusCode == 200) {
+      if (jsonResponse["status"] == true) {
+        setLocalData({'items': json.encode(jsonResponse["data"])});
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode} '
+            '\nResponse Body:\n ${response.body}');
+
+      }
+    }
+    return jsonResponse;
+  }
+
+  static Future<Map<String, dynamic>> sellItem(Map<String, String> data) async{
+    String csrf = await RequestHelper.getCSRFToken();
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Cookie': 'csrftoken=$csrf;',
+      'X-CSRFToken': csrf,
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+    };
+
+    final response = await RequestHelper.sendPostRequest(apiURLS['sellItem']!, headers, data);
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      if (jsonResponse["status"] == true) {
+        setLocalData({'items': json.encode(jsonResponse["data"])});
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode} '
+            '\nResponse Body:\n ${response.body}');
+
+      }
+    }
+    return jsonResponse;
+  }
+
+  static Future<Map<String, dynamic>> getSalesItems(String username, {bool? refresh}) async{
+    refresh = refresh ?? false;
+    if (refresh = false) {
+
+    }
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      // 'Cookie': 'csrftoken=$csrf;',
+      // 'X-CSRFToken': csrf,
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      'username': username,
+    };
+
+    final response = await RequestHelper.sendGetRequest(apiURLS['getSalesItems']!, headers);
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      if (jsonResponse["status"] == true) {
+        setLocalData({'items': json.encode(jsonResponse["data"])});
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode} '
+            '\nResponse Body:\n ${response.body}');
+
+      }
+    }
+    return jsonResponse;
+  }
+
+  static Future<Map<String, dynamic>> getExpiryItems(String username, {bool? refresh}) async{
+    refresh = refresh ?? false;
+    final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    if (refresh = false) {
+
+    }
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      // 'Cookie': 'csrftoken=$csrf;',
+      // 'X-CSRFToken': csrf,
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      'username': username,
+      'today': dateNow
+    };
+
+    final response = await RequestHelper.sendGetRequest(apiURLS['getExpiryItems']!, headers);
+
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
+    if (response.statusCode == 200) {
+      if (jsonResponse["status"] == true) {
+        setLocalData({'items': json.encode(jsonResponse["data"])});
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode} '
+            '\nResponse Body:\n ${response.body}');
+
+      }
+    }
+    return jsonResponse;
+  }
+
+  static Future<Map<String, dynamic>> getNotifications(String username, {bool? refresh}) async{
+    refresh = refresh ?? false;
+    final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    if (refresh = false) {
+
+    }
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      // 'Cookie': 'csrftoken=$csrf;',
+      // 'X-CSRFToken': csrf,
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      'username': username,
+      'today': dateNow
+    };
+
+    final response = await RequestHelper.sendGetRequest(apiURLS['getNotifications']!, headers);
+
+    Map<String, dynamic> jsonResponse = json.decode(response.body);
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
         setLocalData({'items': json.encode(jsonResponse["data"])});

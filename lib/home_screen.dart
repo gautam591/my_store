@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'shared_prefs.dart';
 import 'screens/notification_tab.dart';
 import 'screens/sales_tab.dart';
 import 'screens/purchase_tab.dart';
@@ -8,9 +6,9 @@ import 'screens/summary_tab.dart';
 import 'package:my_store_app/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  Map<String, dynamic> user;
+  final Map<String, dynamic> user;
 
-  HomeScreen({
+  const HomeScreen({
     super.key,
     required this.user
   });
@@ -31,12 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> setUserData() async {
     setState(() {
-      Map<String, dynamic> user = widget.user;
       _pages = [
         SummaryTab(user: widget.user,),
         SalesTab(user: widget.user,),
         PurchaseTab(user: widget.user,),
-        NotificationTab(),
+        NotificationTab(user: widget.user,),
       ];
     });
   }
@@ -75,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               title: const Text('Logout'),
               onTap: () {
+                
                 Future.delayed(const Duration(seconds: 0), () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
