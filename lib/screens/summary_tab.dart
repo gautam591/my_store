@@ -27,8 +27,7 @@ class _SummaryTabState extends State<SummaryTab> {
   List<DataRow> rowsExpiry = [];
   bool dataFetched = false;
 
-  Future<void> getItemsData({bool? refresh}) async {
-    refresh = refresh ?? false;
+  Future<void> getItemsData({bool refresh = true}) async {
     String itemsRaw = json.encode(await Requests.getItems(widget.user['uid'], refresh: refresh));
     String itemsSalesRaw = json.encode(await Requests.getSalesItems(widget.user['uid'], refresh: refresh));
     String itemsExpiryRaw = json.encode(await Requests.getExpiryItems(widget.user['uid'], refresh: refresh));
@@ -84,7 +83,7 @@ class _SummaryTabState extends State<SummaryTab> {
   @override
   void initState() {
     super.initState();
-    getItemsData();
+    getItemsData(refresh: false);
     dataFetched = true;
   }
 

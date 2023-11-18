@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_store_app/request.dart';
+import 'alert.dart';
 import 'screens/notification_tab.dart';
 import 'screens/sales_tab.dart';
 import 'screens/purchase_tab.dart';
@@ -71,15 +73,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               title: const Text('Logout'),
-              onTap: () {
-                
-                Future.delayed(const Duration(seconds: 0), () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => const LoginRegisterPage(),
-                    ),
+              onTap: () async {
+                Map<String, dynamic> response = await Requests.logout();
+                if(response["status"] == true) {
+                  Alerts.showWarning("You have been logged out!");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginRegisterPage()),
                   );
-                });
+                }
+                else{
+                  Alerts.showError("There was a problem logging you out!");
+                }
               },
             ),
           ],

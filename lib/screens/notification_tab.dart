@@ -19,8 +19,7 @@ class _NotificationTabState extends State<NotificationTab>{
   Map<String, dynamic> dataNotifications = {};
   List<String> notifications = [];
 
-
-  Future<void> getNotifications({bool? refresh}) async {
+  Future<void> getNotifications({bool refresh = true}) async {
     String itemsExpiryRaw = json.encode(await Requests.getNotifications(widget.user['uid'], refresh: refresh));
     dataNotifications = json.decode(itemsExpiryRaw)['data'];
     setState(() {
@@ -34,7 +33,7 @@ class _NotificationTabState extends State<NotificationTab>{
   @override
   void initState() {
     super.initState();
-    getNotifications();
+    getNotifications(refresh: false);
   }
 
   @override

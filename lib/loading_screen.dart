@@ -62,7 +62,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
             fit: BoxFit.fill,
           ),
           // Centered Loading Indicator
-          Center(
+          const Center(
             child: CircularProgressIndicator(color:Colors.black),
           ),
         ],

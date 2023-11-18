@@ -36,7 +36,8 @@ class _PurchaseTabState extends State<PurchaseTab> {
     if (pickedDate != null) {
       setState(() {
         // DateFormat('yyyy-MM-dd').format(pickedDate)
-        itemExpiryDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);// {pickedDate.toLocal()} as String;
+        itemExpiryDateController.text = DateFormat('yyyy-MM-dd')
+            .format(pickedDate); // {pickedDate.toLocal()} as String;
       });
     }
   }
@@ -44,7 +45,7 @@ class _PurchaseTabState extends State<PurchaseTab> {
   Future<void> _addItem() async {
     FocusScope.of(context).unfocus();
     _formKeyItemAdd.currentState!.save();
-    if(_formKeyItemAdd.currentState!.validate()) {
+    if (_formKeyItemAdd.currentState!.validate()) {
       final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final data = {
         'username': '${widget.user['uid']}',
@@ -56,8 +57,9 @@ class _PurchaseTabState extends State<PurchaseTab> {
         'description': itemDescriptionController.text,
       };
       Map<String, dynamic> response = await Requests.addItem(data);
-      if(response["status"] == true) {
-        Alerts.showSuccess("Item ${itemNameController.text} added successfully to the stock");
+      if (response["status"] == true) {
+        Alerts.showSuccess(
+            "Item ${itemNameController.text} added successfully to the stock");
         setState(() {
           _rows.add(DataRow(
             cells: [
@@ -75,15 +77,13 @@ class _PurchaseTabState extends State<PurchaseTab> {
           itemExpiryDateController.clear();
           itemDescriptionController.clear();
         });
-      }
-      else{
+      } else {
         Alerts.showError(response["messages"]["error"]);
       }
     }
   }
 
-  Future<void> getItemsData({bool? refresh}) async {
-    refresh = refresh ?? false;
+  Future<void> getItemsData({bool refresh = true}) async {
     String itemsRaw = json.encode(await Requests.getItems(widget.user['uid'], refresh: refresh));
     setState(() {
       Map<String, dynamic> items = json.decode(itemsRaw)['data'];
@@ -103,151 +103,151 @@ class _PurchaseTabState extends State<PurchaseTab> {
     });
   }
 
-
   @override
   void initState() {
     super.initState();
-    getItemsData();
+    getItemsData(refresh: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKeyItemAdd,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ExpansionTile(
-                  title: RichText(
-                    // textAlign: TextAlign.start,
-                    text: const TextSpan(
-                      children: [
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: Icon(
-                              Icons.add_circle_outline_rounded,
-                              size: 22,
-                              color: Colors.black
-                          ),
-                        ),
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: Text(
-                            '  Add Purchased Item',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  children: [
-                    Column(
+    return RefreshIndicator(
+      onRefresh: getItemsData,
+      child: ListView(
+        children: [
+          SingleChildScrollView(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKeyItemAdd,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: itemNameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Item Name*',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter item name';
-                            }
-                            return null; // Return null if the input is valid
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: itemPriceController,
-                          decoration: const InputDecoration(
-                            labelText: 'Price*',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter the price for the item';
-                            }
-                            return null; // Return null if the input is valid
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: itemQuantityController,
-                          decoration: const InputDecoration(
-                            labelText: 'Quantity*',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter quantity for the item';
-                            }
-                            return null; // Return null if the input is valid
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: itemExpiryDateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Expiry Date',
-                            border: OutlineInputBorder(),
-                          ),
-                          readOnly: true,
-                          onTap: () => _selectDate(context),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                            controller: itemDescriptionController,
-                            decoration: const InputDecoration(
-                              labelText: 'Description/Remarks',
-                              border: OutlineInputBorder(),
+                        ExpansionTile(
+                          title: RichText(
+                            text: const TextSpan(
+                              children: [
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(Icons.add_circle_outline_rounded,
+                                      size: 22, color: Colors.black),
+                                ),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Text(
+                                    '  Add Purchased Item',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            keyboardType: TextInputType.text
+                          ),
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: itemNameController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Item Name*',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.text,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter item name';
+                                    }
+                                    return null; // Return null if the input is valid
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: itemPriceController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Price*',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter the price for the item';
+                                    }
+                                    return null; // Return null if the input is valid
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: itemQuantityController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Quantity*',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.text,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter quantity for the item';
+                                    }
+                                    return null; // Return null if the input is valid
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: itemExpiryDateController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Expiry Date',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  readOnly: true,
+                                  onTap: () => _selectDate(context),
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                    controller: itemDescriptionController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Description/Remarks',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.text),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                    onPressed: _addItem,
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.redAccent),
+                                    child: const Text('Add Item')),
+                                const SizedBox(height: 16)
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                            onPressed: _addItem,
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                            child: const Text('Add Item')
-                        ),
-                        const SizedBox(height: 16)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            horizontalMargin: 0,
+                            columnSpacing: 20,
+                            columns: const [
+                              DataColumn(label: Text('Name')),
+                              DataColumn(label: Text('Price')),
+                              DataColumn(label: Text('Quantity')),
+                              DataColumn(label: Text('Expiry Date')),
+                              DataColumn(label: Text('Purchase Date')),
+                              DataColumn(label: Text('Description/Remarks'))
+                            ],
+                            rows: _rows,
+                          ),
+                        )
                       ],
                     ),
-
-                  ],
+                  )
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    horizontalMargin: 0,
-                    columnSpacing: 20,
-                    columns: const [
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Price')),
-                      DataColumn(label: Text('Quantity')),
-                      DataColumn(label: Text('Expiry Date')),
-                      DataColumn(label: Text('Purchase Date')),
-                      DataColumn(label: Text('Description/Remarks'))
-                    ],
-                    rows: _rows,
-                  ),
-                )
-              ],
-            ),
+              )
           )
-        ),
-      )
+        ],
+      ),
     );
   }
 }

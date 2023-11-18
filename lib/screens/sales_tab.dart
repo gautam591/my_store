@@ -26,17 +26,14 @@ class _SalesTabState extends State<SalesTab> {
 
   List<DataRow> _rows = [];
   final _formKeyItemAdd = GlobalKey<FormState>();
-  List<String> dropdownMenuEntries = <String>[];
+  List<DropdownMenuEntry<String>> dropdownMenuItems = [];
   Map<String, dynamic> items = {};
   Map<String, dynamic> itemsSales = {};
   String selectedItem = '';
 
-  TextEditingController itemNameController = TextEditingController();
-  TextEditingController itemPriceController = TextEditingController();
-  TextEditingController itemExpiryDateController = TextEditingController();
   TextEditingController itemQuantityController = TextEditingController();
-  TextEditingController itemDescriptionController = TextEditingController();
   TextEditingController itemAvailableQuantityController = TextEditingController();
+  TextEditingController dropdownController = TextEditingController();
 
 
   Future<void> _sellItem() async {
@@ -46,7 +43,8 @@ class _SalesTabState extends State<SalesTab> {
       final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final data = {
         'username': '${widget.user['uid']}',
-        'name': selectedItem,
+        'id': '${items[selectedItem]['id']}',
+        'name': '${items[selectedItem]['name']}',
         'price': '${items[selectedItem]['price']}',
         'available_quantity': '${items[selectedItem]['quantity']}',
         'quantity': itemQuantityController.text,
@@ -57,23 +55,25 @@ class _SalesTabState extends State<SalesTab> {
       };
       Map<String, dynamic> response = await Requests.sellItem(data);
       if(response["status"] == true) {
-        // setItemDropdown();
-        Alerts.showSuccess("Item '${itemNameController.text}' successfully sold and added to sales data");
-        _rows.add(DataRow(
-          cells: [
-            DataCell(Text(itemNameController.text)),
-            DataCell(Text(itemPriceController.text)),
-            DataCell(Text(itemQuantityController.text)),
-            DataCell(Text(itemExpiryDateController.text)),
-            DataCell(Text(dateNow)),
-            DataCell(Text(itemDescriptionController.text))
-          ],
-        ));
-        itemNameController.clear();
-        itemPriceController.clear();
-        itemQuantityController.clear();
-        itemExpiryDateController.clear();
-        itemDescriptionController.clear();
+        setItemDropdown(refresh: true);
+        Alerts.showSuccess("Item '${items[selectedItem]['name']}' successfully sold and added to sales data");
+        setState(() {
+          _rows.add(DataRow(
+            cells: [
+              DataCell(Text('${items[selectedItem]['name']}')),
+              DataCell(Text('${items[selectedItem]['price']}')),
+              DataCell(Text(itemQuantityController.text)),
+              DataCell(Text(dateNow)),
+              DataCell(Text('${items[selectedItem]['purchase_date']}')),
+              DataCell(Text('${items[selectedItem]['expiry_date']}')),
+              DataCell(Text('${items[selectedItem]['description']}')),
+            ],
+          ));
+          itemQuantityController.clear();
+          dropdownController.clear();
+          itemAvailableQuantityController.clear();
+          selectedItem = '';
+        });
       }
       else{
         Alerts.showError(response["messages"]["error"]);
@@ -81,8 +81,7 @@ class _SalesTabState extends State<SalesTab> {
     }
   }
 
-  Future<void> getItemsData({bool? refresh}) async {
-    refresh = refresh ?? false;
+  Future<void> getItemsData({bool refresh = true}) async {
     String itemsSalesRaw = json.encode(await Requests.getSalesItems(widget.user['uid'], refresh: refresh));
     setState(() {
       itemsSales = json.decode(itemsSalesRaw)['data'];
@@ -103,14 +102,16 @@ class _SalesTabState extends State<SalesTab> {
     });
   }
 
-  Future<void> setItemDropdown({bool? refresh}) async {
-    refresh = refresh ?? false;
+  Future<void> setItemDropdown({bool refresh = true}) async {
     String itemsRaw = json.encode(await Requests.getItems(widget.user['uid'], refresh: refresh));
     setState(() {
       items = json.decode(itemsRaw)['data'];
-      dropdownMenuEntries = [];
+      dropdownMenuItems = [];
       items.forEach((key, value) {
-        dropdownMenuEntries.add('${value['name']}');
+        dropdownMenuItems.add(DropdownMenuEntry<String>(
+          value: '${value['id']}',
+          label: '${value['name']}',
+        ));
       });
     });
   }
@@ -118,137 +119,142 @@ class _SalesTabState extends State<SalesTab> {
   @override
   void initState() {
     super.initState();
-    getItemsData();
-    setItemDropdown();
+    getItemsData(refresh: false);
+    setItemDropdown(refresh: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Center(
-          child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKeyItemAdd,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ExpansionTile(
-                      title: RichText(
-                        // textAlign: TextAlign.start,
-                        text: const TextSpan(
-                          children: [
-                            WidgetSpan(
-                              alignment: PlaceholderAlignment.middle,
-                              child: Icon(
-                                  Icons.add_circle_outline_rounded,
-                                  size: 22,
-                                  color: Colors.black
-                              ),
-                            ),
-                            WidgetSpan(
-                              alignment: PlaceholderAlignment.middle,
-                              child: Text(
-                                '  Add Sold Item',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      children: [
-                        Column(
+    return RefreshIndicator(
+        onRefresh: getItemsData,
+        child: ListView(
+          children: [
+              SingleChildScrollView(
+                child: Center(
+                  child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKeyItemAdd,
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const SizedBox(height: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                DropdownMenu(
-                                  hintText: 'Choose item to sell*',
-                                  onSelected: (String? value) {
-                                    setState(() {
-                                      selectedItem = value!;
-                                      itemAvailableQuantityController.text = '    Available Quantity: ${items[value]['quantity']}';
-                                    });
-                                  },
-                                  dropdownMenuEntries: dropdownMenuEntries.map<DropdownMenuEntry<String>>((String value) {
-                                    return DropdownMenuEntry<String>(value: value, label: value);
-                                  }).toList(),
+                            ExpansionTile(
+                              title: RichText(
+                                // textAlign: TextAlign.start,
+                                text: const TextSpan(
+                                  children: [
+                                    WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Icon(
+                                          Icons.add_circle_outline_rounded,
+                                          size: 22,
+                                          color: Colors.black
+                                      ),
+                                    ),
+                                    WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Text(
+                                        '  Add Sold Item',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
+                              ),
                               children: [
-                                Expanded(child: TextFormField(
-                                  controller: itemQuantityController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Quantity*',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter quantity for the item';
-                                    }
-                                    if (selectedItem == ''){
-                                      return "You must first select item to sell from above dropdown";
-                                    }
-                                    if (int.parse(items[selectedItem]['quantity'].toString()) < int.parse(value)){
-                                      return "Greater than available quantity";
-                                    }
-                                    return null;
-                                  },
-                                ),),
-                                Expanded(child: TextFormField(
-                                  controller: itemAvailableQuantityController,
-                                  style: const TextStyle(fontSize:15),
-                                  readOnly: true,
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                  )
-                                ))
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const SizedBox(height: 16),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        DropdownMenu(
+                                          hintText: 'Choose item to sell*',
+                                          onSelected: (String? value) {
+                                            setState(() {
+                                              selectedItem = value!;
+                                              itemAvailableQuantityController.text = '    Available Quantity: ${items[selectedItem]['quantity']}';
+                                            });
+                                          },
+                                          dropdownMenuEntries: dropdownMenuItems,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(child: TextFormField(
+                                          controller: itemQuantityController,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Quantity*',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter quantity for the item';
+                                            }
+                                            if (selectedItem == ''){
+                                              return "You must first select item to sell from above dropdown";
+                                            }
+                                            if (int.parse(items[selectedItem]['quantity'].toString()) < int.parse(value)){
+                                              return "Greater than available quantity";
+                                            }
+                                            return null;
+                                          },
+                                        ),),
+                                        Expanded(child: TextFormField(
+                                            controller: itemAvailableQuantityController,
+                                            style: const TextStyle(fontSize:15),
+                                            readOnly: true,
+                                            decoration: const InputDecoration(
+                                              border: InputBorder.none,
+                                            )
+                                        ))
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                        onPressed: _sellItem,
+                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                        child: const Text('Sell Item')
+                                    ),
+                                    const SizedBox(height: 16)
+                                  ],
+                                ),
+
                               ],
                             ),
-                            
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                                onPressed: _sellItem,
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                                child: const Text('Sell Item')
-                            ),
-                            const SizedBox(height: 16)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                  horizontalMargin: 0,
+                                  columnSpacing: 20,
+                                  columns: const [
+                                      DataColumn(label: Text('Sold Item')),
+                                      DataColumn(label: Text('Price')),
+                                      DataColumn(label: Text('Quantity')),
+                                      DataColumn(label: Text('Sales Date')),
+                                      DataColumn(label: Text('Purchase Date')),
+                                      DataColumn(label: Text('Expiry Date')),
+                                      DataColumn(label: Text('Description/Remarks')),
+                                  ],
+                                  rows: _rows,
+                              ),
+                            )
                           ],
-                        ),
-
-                      ],
-                    ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        horizontalMargin: 0,
-                        columnSpacing: 20,
-                        columns: const [
-                          DataColumn(label: Text('Sold Item')),
-                          DataColumn(label: Text('Price')),
-                          DataColumn(label: Text('Quantity')),
-                          DataColumn(label: Text('Sales Date')),
-                          DataColumn(label: Text('Purchase Date')),
-                          DataColumn(label: Text('Expiry Date')),
-                          DataColumn(label: Text('Description/Remarks')),
-                        ],
-                        rows: _rows,
-                      ),
-                    )
-                  ],
-                ),
+                       ),
+                      )
+                  ),
+                )
               )
-          ),
-        )
+          ],
+        ),
     );
   }
 }

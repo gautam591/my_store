@@ -98,6 +98,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                                 if(response["status"] == true) {
                                   Map<String, dynamic> user = json.decode(json.encode(response["data"]["user"]));
                                   Alerts.showSuccess(response["messages"]["success"]);
+                                  await Requests.getAllData(user['uid']);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => HomeScreen(user: user)),

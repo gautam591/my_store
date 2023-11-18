@@ -109,32 +109,9 @@ class Requests {
   }
 
   static Future<Map<String, dynamic>> logout() async{
-    String csrf = await RequestHelper.getCSRFToken();
-    final headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Cookie': 'csrftoken=$csrf;',
-      'X-CSRFToken': csrf,
-      'Accept': '*/*',
-      'Connection': 'keep-alive',
-    };
-    final response = await RequestHelper.sendPostRequest(apiURLS['logout']!, headers, {});
-    Map<String, dynamic> jsonResponse = json.decode(response.body);
-
-    if (response.statusCode == 200) {
-      if (jsonResponse["status"] == true) {
-        deleteLocalData('idToken');
-        deleteLocalData('refreshToken');
-        deleteLocalData('expiresIn');
-        deleteLocalData('username');
-      }
-    } else {
-      if (kDebugMode) {
-        print('Request failed with status: ${response.statusCode} '
-            '\nResponse Body:\n ${response.body}');
-      }
-    }
+    deleteAllLocalData();
+    Map<String, dynamic> jsonResponse = {'status': true};
     return jsonResponse;
-
   }
 
   static Future<Map<String, dynamic>> register(Map<String, String> data) async{
@@ -194,10 +171,13 @@ class Requests {
     return jsonResponse;
   }
 
-  static Future<Map<String, dynamic>> getItems(String username, {bool? refresh}) async{
-    refresh = refresh ?? false;
-    if (refresh = false) {
-
+  static Future<Map<String, dynamic>> getItems(String username, {bool refresh = false}) async{
+    Map<String, dynamic> jsonResponse = { };
+    if (refresh == false) {
+      String itemsRaw = await getLocalData('items') as String;
+      jsonResponse['data'] = json.decode(itemsRaw);
+      jsonResponse["status"] = true;
+      return jsonResponse;
     }
     final headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -209,10 +189,11 @@ class Requests {
     };
 
     final response = await RequestHelper.sendGetRequest(apiURLS['getItems']!, headers);
-    Map<String, dynamic> jsonResponse = json.decode(response.body);
+    jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
+        deleteLocalData('items');
         setLocalData({'items': json.encode(jsonResponse["data"])});
       }
     } else {
@@ -240,7 +221,6 @@ class Requests {
 
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
-        setLocalData({'items': json.encode(jsonResponse["data"])});
       }
     } else {
       if (kDebugMode) {
@@ -252,10 +232,13 @@ class Requests {
     return jsonResponse;
   }
 
-  static Future<Map<String, dynamic>> getSalesItems(String username, {bool? refresh}) async{
-    refresh = refresh ?? false;
-    if (refresh = false) {
-
+  static Future<Map<String, dynamic>> getSalesItems(String username, {bool refresh = false}) async{
+    Map<String, dynamic> jsonResponse = { };
+    if (refresh == false) {
+      String itemsRaw = await getLocalData('itemSales') as String;
+      jsonResponse['data'] = json.decode(itemsRaw);
+      jsonResponse["status"] = true;
+      return jsonResponse;
     }
     final headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -265,13 +248,13 @@ class Requests {
       'Connection': 'keep-alive',
       'username': username,
     };
-
     final response = await RequestHelper.sendGetRequest(apiURLS['getSalesItems']!, headers);
-    Map<String, dynamic> jsonResponse = json.decode(response.body);
+    jsonResponse = json.decode(response.body);
 
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
-        setLocalData({'items': json.encode(jsonResponse["data"])});
+        deleteLocalData('itemSales');
+        setLocalData({'itemSales': json.encode(jsonResponse["data"])});
       }
     } else {
       if (kDebugMode) {
@@ -283,12 +266,15 @@ class Requests {
     return jsonResponse;
   }
 
-  static Future<Map<String, dynamic>> getExpiryItems(String username, {bool? refresh}) async{
-    refresh = refresh ?? false;
-    final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    if (refresh = false) {
-
+  static Future<Map<String, dynamic>> getExpiryItems(String username, {bool refresh = false}) async{
+    Map<String, dynamic> jsonResponse = { };
+    if (refresh == false) {
+      String itemsRaw = await getLocalData('itemExpiry') as String;
+      jsonResponse['data'] = json.decode(itemsRaw);
+      jsonResponse["status"] = true;
+      return jsonResponse;
     }
+    final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
       // 'Cookie': 'csrftoken=$csrf;',
@@ -300,11 +286,12 @@ class Requests {
     };
 
     final response = await RequestHelper.sendGetRequest(apiURLS['getExpiryItems']!, headers);
+    jsonResponse = json.decode(response.body);
 
-    Map<String, dynamic> jsonResponse = json.decode(response.body);
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
-        setLocalData({'items': json.encode(jsonResponse["data"])});
+        deleteLocalData('itemExpiry');
+        setLocalData({'itemExpiry': json.encode(jsonResponse["data"])});
       }
     } else {
       if (kDebugMode) {
@@ -317,11 +304,14 @@ class Requests {
   }
 
   static Future<Map<String, dynamic>> getNotifications(String username, {bool? refresh}) async{
-    refresh = refresh ?? false;
-    final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    if (refresh = false) {
-
+    Map<String, dynamic> jsonResponse = { };
+    if (refresh == false) {
+      String itemsRaw = await getLocalData('notifications') as String;
+      jsonResponse['data'] = json.decode(itemsRaw);
+      jsonResponse["status"] = true;
+      return jsonResponse;
     }
+    final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
       // 'Cookie': 'csrftoken=$csrf;',
@@ -333,19 +323,27 @@ class Requests {
     };
 
     final response = await RequestHelper.sendGetRequest(apiURLS['getNotifications']!, headers);
+    jsonResponse = json.decode(response.body);
 
-    Map<String, dynamic> jsonResponse = json.decode(response.body);
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
-        setLocalData({'items': json.encode(jsonResponse["data"])});
+        deleteLocalData('notifications');
+        setLocalData({'notifications': json.encode(jsonResponse["data"])});
       }
     } else {
       if (kDebugMode) {
         print('Request failed with status: ${response.statusCode} '
             '\nResponse Body:\n ${response.body}');
-
       }
     }
     return jsonResponse;
   }
+
+  static Future<void> getAllData(String username) async{
+    String itemsRaw = json.encode(await Requests.getItems(username, refresh: true));
+    String itemSalesRaw = json.encode(await Requests.getSalesItems(username, refresh: true));
+    String itemExpiryRaw = json.encode(await Requests.getExpiryItems(username, refresh: true));
+    String notificationsRaw = json.encode(await Requests.getNotifications(username, refresh: true));
+  }
+
 }
