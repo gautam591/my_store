@@ -6,8 +6,8 @@ import 'package:mero_store/services/notification_service.dart';
 import 'shared_prefs.dart';
 
 // const host = 'http://leonardo674.pythonanywhere.com';
-// const host = 'http://manishbhandari903.pythonanywhere.com';
-const host = 'http://10.0.2.2:8000/';
+const host = 'http://manishbhandari903.pythonanywhere.com';
+// const host = 'http://10.0.2.2:8000/';
 
 const apiURLS = {
   'getCSRF'   : '$host/api/user/getcsrf/',
