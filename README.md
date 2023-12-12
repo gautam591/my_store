@@ -1,4 +1,4 @@
-# my_store_app
+# mero_store
 
 A new Flutter project.
 

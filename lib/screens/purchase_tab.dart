@@ -61,7 +61,7 @@ class _PurchaseTabState extends State<PurchaseTab> {
         Alerts.showSuccess(
             "Item ${itemNameController.text} added successfully to the stock");
         setState(() {
-          _rows.add(DataRow(
+          _rows.insert(0, DataRow(
             cells: [
               DataCell(Text(itemNameController.text)),
               DataCell(Text(itemPriceController.text)),

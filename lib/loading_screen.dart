@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:my_store_app/home_screen.dart';
+import 'package:mero_store/home_screen.dart';
 import 'alert.dart';
 import 'login_screen.dart';
 import 'shared_prefs.dart';

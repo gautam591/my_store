@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:my_store_app/request.dart';
+import 'package:mero_store/request.dart';
 import 'alert.dart';
 import 'screens/notification_tab.dart';
 import 'screens/sales_tab.dart';
 import 'screens/purchase_tab.dart';
 import 'screens/summary_tab.dart';
-import 'package:my_store_app/login_screen.dart';
+import 'package:mero_store/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> user;

@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mero_store/services/notification_service.dart';
 import 'shared_prefs.dart';
 
 // const host = 'http://leonardo674.pythonanywhere.com';
-const host = 'http://manishbhandari903.pythonanywhere.com';
-// const host = 'http://10.0.2.2:8000/';
+// const host = 'http://manishbhandari903.pythonanywhere.com';
+const host = 'http://10.0.2.2:8000/';
 
 const apiURLS = {
   'getCSRF'   : '$host/api/user/getcsrf/',
@@ -305,6 +306,22 @@ class Requests {
 
   static Future<Map<String, dynamic>> getNotifications(String username, {bool? refresh}) async{
     Map<String, dynamic> jsonResponse = { };
+    if (username == '#true#') {
+      String userRaw = await getLocalData('user') as String;
+      if(userRaw != ''){
+        Map<String, dynamic> user = json.decode(userRaw);
+        username  = user['uid'];
+      }
+      else {
+        jsonResponse["status"] = false;
+        return jsonResponse;
+      }
+    }
+    else if (username == '#false#') {
+      jsonResponse["status"] = false;
+      return jsonResponse;
+    }
+
     if (refresh == false) {
       String itemsRaw = await getLocalData('notifications') as String;
       jsonResponse['data'] = json.decode(itemsRaw);
@@ -327,8 +344,24 @@ class Requests {
 
     if (response.statusCode == 200) {
       if (jsonResponse["status"] == true) {
-        deleteLocalData('notifications');
-        setLocalData({'notifications': json.encode(jsonResponse["data"])});
+        String oldItemsRaw = await getLocalData('notifications') as String;
+        Map<String, dynamic> oldJsonData = {};
+        if (oldItemsRaw != '') {
+          oldJsonData = json.decode(oldItemsRaw);
+        }
+        Map<String, dynamic> newJsonData = jsonResponse["data"];
+
+        if (oldJsonData.keys.toList().toString() !=
+            newJsonData.keys.toList().toString()) {
+          String key = newJsonData.keys.toList()[0];
+          NotificationService notificationService = NotificationService();
+          notificationService.showNotification(
+              title: "Some of your items are expiring soon!",
+              body: newJsonData[key]
+          );
+          deleteLocalData('notifications');
+          setLocalData({'notifications': json.encode(jsonResponse["data"])});
+        }
       }
     } else {
       if (kDebugMode) {
@@ -340,10 +373,9 @@ class Requests {
   }
 
   static Future<void> getAllData(String username) async{
-    String itemsRaw = json.encode(await Requests.getItems(username, refresh: true));
-    String itemSalesRaw = json.encode(await Requests.getSalesItems(username, refresh: true));
-    String itemExpiryRaw = json.encode(await Requests.getExpiryItems(username, refresh: true));
-    String notificationsRaw = json.encode(await Requests.getNotifications(username, refresh: true));
+    await Requests.getItems(username, refresh: true);
+    await Requests.getSalesItems(username, refresh: true);
+    await Requests.getExpiryItems(username, refresh: true);
+    await Requests.getNotifications(username, refresh: true);
   }
-
 }

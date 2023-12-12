@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:my_store_app/request.dart';
+import 'package:mero_store/request.dart';
 
 class SummaryTab extends StatefulWidget {
   final Map<String, dynamic> user;

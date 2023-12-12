@@ -35,7 +35,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Welcome to My Store',
+                    'Welcome to Mero Store',
                     style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
